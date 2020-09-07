@@ -1,28 +1,30 @@
-# picoorm
+# PicoORM
 PicoORM: a very lightweight ORM for PHP >=5.4.0
 
 by Paige Julianne Sullivan <wiley14@gmail.com> https://paigejulianne.com
 
 
 ##Installation
-Include `src/picoorm.php` in your project files
-or use `composer require paigejulianne14/picoorm`
+Include `src/PicoORM.php` in your project files or use `composer require paigejulianne14/picoorm`
 
 ##Configuration
-Edit `src/picoorm.ini` and edit values as necessary.  The 'driver' value should match something
-PHP PDO expects.  See https://www.php.net/manual/en/pdo.drivers.php for more information.
+You will need to create a PDO connection and "share" it with PicoORM
+through the `$GLOBAL['_PICO_PDO']` variable.
 
-If you are using SQLite, add the 'custompdo' value as seen at 
-https://www.php.net/manual/en/ref.pdo-sqlite.connection.php (you don't need to worry about completing 
-the 'host', 'driver', and 'basedb' fields).
+An example might be:
+```
+$GLOBAL['_PICO_PDO'] = new PDO("mysql:dbname=test;host=localhost", "dbuser", "dbpass");
+```
 
-You can also use the 'custompdo' field for any custom connection parameters.
+See https://php.net/PDO for more information on PDO connection strings and parameters.
+
+*You will need to create the PDO connection before you can use the class.*
 
 ##Create Your Classes
 Create a class with the same name as your table and extend the *PicoORM* class.  For example, a wrapper around the `users`
 table should be similar to the following:
 ```
-class User extends PicoORM {
+class User extends \PicoORM {
 
 }
 ``` 
@@ -31,7 +33,7 @@ example `user.php` class.
 
 You can also extend/modify any method in the class or add classes.  Example:
 ```
-class User extends PicoORM {
+class User extends \PicoORM {
   
     public function __construct($id_value, $id_column = 'id') {
     	// do something special
@@ -45,6 +47,24 @@ class User extends PicoORM {
 }
 ```
 Make sure you `include` or `require` your classes for them to function.
+
+##Specifying Database
+The code was designed to operate on a single database by default, but you can also specify the database
+name by using a `namespace` statement before you instantiate your class.  Examples:
+
+```
+// create a class that uses the EndUsers database
+namespace EndUsers;
+class Users extends \PicoORM {
+    ...
+}
+
+// create a class that uses the Vendors database
+namespace Vendors;
+class Users extends \PicoORM {
+    ...
+}
+```
 
 ##Basic Functionality
 Assuming you have a `User` class (even if it's empty), you can retrieve a single record with the value 1 in the 
@@ -138,5 +158,7 @@ User::_fetch('SELECT * FROM _DB_ WHERE SUBSTRING(first_name, 0, 1) = ?', ['P']);
 
 // gets all users who's first name starts with the letter 'P'
 User::_fetchAll('SELECT * FROM _DB_ WHERE SUBSTRING(first_name, 0, 1) = ?', ['P']);
-
 ```
+
+In your custom SQL statement, you can use the "magic" string `_DB_` that will be properly replaced
+with the database and table you are using as seen above.

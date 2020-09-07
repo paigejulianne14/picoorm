@@ -9,7 +9,7 @@
  */
 
 if ($_REQUEST['submit']) {
-	require_once '../src/picoorm.php';
+	require_once '../src/PicoORM.php';
 	// form posted, check for duplicate email addresses
 	$userexists = User::checkForDuplicate('email', $_REQUEST['email']);
 	if ($userexists) {

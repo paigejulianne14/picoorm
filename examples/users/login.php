@@ -8,7 +8,7 @@
  */
 
 if ($_REQUEST['submit']) {
-	require_once '../src/picoorm.php';
+	require_once '../src/PicoORM.php';
 	$user = new User($_REQUEST['email'], 'email');
 	var_export($_REQUEST);
 	var_export($user);

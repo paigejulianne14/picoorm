@@ -6,23 +6,6 @@
  * @license MIT
  */
 
-// read ini file and settings into superglobal array
-$GLOBALS['_PICO_CFG'] = parse_ini_file('./picoorm.ini');
-
-// setup database connection
-if ( ! $GLOBALS['_PICO_CFG']['dsn']) {
-	$_pico_dsn = sprintf("%s:dbname=%s;host=%s", $GLOBALS['_PICO_CFG']['driver'],
-		$GLOBALS['_PICO_CFG']['basedb'], $GLOBALS['_PICO_CFG']['host']);
-} else {
-	$_pico_dsn = $GLOBALS['_PICO_CFG']['dsn'];
-}
-
-$GLOBALS['_PICO_PDO'] = new PDO($_pico_dsn, $GLOBALS['_PICO_CFG']['userid'], $GLOBALS['_PICO_CFG']['passwd']);
-
-// unset the database password after setting up the PDO connection for ~some~ security
-unset($_pico_dsn);
-unset($GLOBALS['_PICO_CFG']['passwd']);
-
 class PicoORM {
 	
 	/**
@@ -260,16 +243,25 @@ class PicoORM {
 	 * @return PDOStatement
 	 */
 	static public function _doQuery($sql, $valueArray = array(), $database = NULL) {
+		if (!is_object($GLOBALS['_PICO_PDO'])) {
+			throw new Exception('$GLOBALS["_PICO_PDO"] must be defined as a PDO connection');
+		}
 		if ($database === NULL) {
 			$database = strtolower(get_called_class());
 		}
-		$database = $GLOBALS['_PICO_CFG']['basedb'] . '.' . $database;
+
+		@list($database, $table) = explode('\\', $database);
+		if (@$table) {
+			$database .= '.' . $table;
+		}
+		
 		$sql      = str_replace('_DB_', $database, $sql);
 		$sql      = str_replace('_db_', $database, $sql);
+		
 		if ( ! is_array($valueArray)) {
 			$valueArray = array($valueArray);
 		}
-		echo $sql;
+		
 		$statement = $GLOBALS['_PICO_PDO']->prepare($sql);
 		$statement->execute($valueArray);
 		
