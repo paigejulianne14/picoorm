@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-0": {
-      "picoorm": "src/"
+      "picoorm": "src/picoorm.php"
     }
   }
 }
