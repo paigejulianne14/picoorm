@@ -78,7 +78,7 @@ $user->delete();
 unset($user);
 ```
 
-- ###getAllObjects
+###getAllObjects
 
 Example of getting all users (returned as an object array) with `permission` > 100, sorted by user_id:
 ```
@@ -101,7 +101,7 @@ A more advanced example might look like:
 $adminUsers = User::getAllObjects('id', [['permission','>',100],['admin_user'],'=',1]],'OR', true);
 ```
 
-- ###createNew
+###createNew
 This lets you very quickly add new records to the database, using an array to set values
 ```
 $newUser = User::createNew([
