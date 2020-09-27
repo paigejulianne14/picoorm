@@ -11,7 +11,7 @@ class PicoORM {
 	/**
 	 * @var number numeric ID of row in database
 	 */
-	public $id;
+	public $_id;
 	
 	/**
 	 * @var array:mixed holds the columns out of the database table
@@ -37,7 +37,7 @@ class PicoORM {
 	public function __construct($id_value, $id_column = 'id') {
 		$result = self::_fetch('SELECT * FROM _DB_ WHERE ' . $id_column . ' = ?', $id_value);
 		if ($result) {
-			$this->id         = $id_value;
+			$this->_id        = $id_value;
 			$this->_id_column = $id_column;
 			$this->properties = $result;
 			
@@ -65,7 +65,7 @@ class PicoORM {
 				$values[] = $this->properties[$propname];
 			}
 			if ($parts || $values) {
-				$sql = "UPDATE _DB_ SET " . implode(', ', $parts) . " WHERE " . $this->_id_column . " = " . $this->id;
+				$sql = "UPDATE _DB_ SET " . implode(', ', $parts) . " WHERE " . $this->_id_column . " = " . $this->_id;
 				
 				$result = self::_doQuery($sql, array_values($values));
 			}
@@ -80,10 +80,6 @@ class PicoORM {
 	 * @return mixed
 	 */
 	public function __get($prop) {
-		if ($prop == 'id') {
-			return $this->id;
-		}
-		
 		return $this->properties[$prop];
 	}
 	
@@ -94,9 +90,7 @@ class PicoORM {
 	 * @param  mixed   $value
 	 */
 	public function __set($prop, $value) {
-		if ($prop[0] != '_') {
-			$this->_taintedItems[$prop] = $prop;
-		}
+		$this->_taintedItems[$prop] = $prop;
 		$this->properties[$prop] = $value;
 		$this->writeChanges();
 	}
@@ -116,7 +110,7 @@ class PicoORM {
 	 * ! DANGER WILL ROBINSON ! deletes the current row from the database and destroys the object
 	 */
 	public function delete() {
-		self::_doQuery('DELETE FROM _DB_ WHERE ' . $this->_id_column . ' = ?', $this->id);
+		self::_doQuery('DELETE FROM _DB_ WHERE ' . $this->_id_column . ' = ?', $this->_id);
 	}
 	
 	/**
